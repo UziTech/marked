@@ -605,7 +605,7 @@ export class _Tokenizer {
   link(src: string): Tokens.Link | Tokens.Image | undefined {
     const cap = this.rules.inline.link.exec(src);
     if (cap) {
-      const trimmedUrl = cap[2].trim();
+      const trimmedUrl = cap.groups!.href.trim();
       if (!this.options.pedantic && /^</.test(trimmedUrl)) {
         // commonmark requires matching angle brackets
         if (!(/>$/.test(trimmedUrl))) {
@@ -619,16 +619,16 @@ export class _Tokenizer {
         }
       } else {
         // find closing parenthesis
-        const lastParenIndex = findClosingBracket(cap[2], '()');
+        const lastParenIndex = findClosingBracket(cap.groups!.href, '()');
         if (lastParenIndex > -1) {
           const start = cap[0].indexOf('!') === 0 ? 5 : 4;
-          const linkLen = start + cap[1].length + lastParenIndex;
-          cap[2] = cap[2].substring(0, lastParenIndex);
+          const linkLen = start + cap.groups!.label.length + lastParenIndex;
+          cap.groups!.href = cap.groups!.href.substring(0, lastParenIndex);
           cap[0] = cap[0].substring(0, linkLen).trim();
-          cap[3] = '';
+          cap.groups!.title = '';
         }
       }
-      let href = cap[2];
+      let href = cap.groups!.href;
       let title = '';
       if (this.options.pedantic) {
         // split pedantic href and title
@@ -639,7 +639,7 @@ export class _Tokenizer {
           title = link[3];
         }
       } else {
-        title = cap[3] ? cap[3].slice(1, -1) : '';
+        title = cap.groups!.title ? cap.groups!.title.slice(1, -1) : '';
       }
 
       href = href.trim();
@@ -662,7 +662,7 @@ export class _Tokenizer {
     let cap;
     if ((cap = this.rules.inline.reflink.exec(src))
       || (cap = this.rules.inline.nolink.exec(src))) {
-      const linkString = (cap[2] || cap[1]).replace(/\s+/g, ' ');
+      const linkString = (cap.groups!.ref || cap.groups!.noref || cap.groups!.label).replace(/\s+/g, ' ');
       const link = links[linkString.toLowerCase()];
       if (!link) {
         const text = cap[0].charAt(0);

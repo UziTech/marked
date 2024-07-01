@@ -226,21 +226,21 @@ const tag = edit(
   .replace('attribute', /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/)
   .getRegex();
 
-const _inlineLabel = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+const _inlineLabel = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|(?<backticks>`+)(?:\\.|(?!=\k<backticks>)[^\\\n])*\k<backticks>|[^\[\]\\`])*/;
 
-const link = edit(/^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/)
-  .replace('label', _inlineLabel)
-  .replace('href', /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/)
-  .replace('title', /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/)
+const link = edit(/^!?\[(?<label>labelReplace)\]\(\s*(?<href>hrefReplace)(?:\s+(?<title>titleReplace))?\s*\)/)
+  .replace('labelReplace', _inlineLabel)
+  .replace('hrefReplace', /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/)
+  .replace('titleReplace', /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/)
   .getRegex();
 
-const reflink = edit(/^!?\[(label)\]\[(ref)\]/)
-  .replace('label', _inlineLabel)
-  .replace('ref', _blockLabel)
+const reflink = edit(/^!?\[(?<label>labelReplace)\]\[(?<ref>refReplace)\]/)
+  .replace('labelReplace', _inlineLabel)
+  .replace('refReplace', _blockLabel)
   .getRegex();
 
-const nolink = edit(/^!?\[(ref)\](?:\[\])?/)
-  .replace('ref', _blockLabel)
+const nolink = edit(/^!?\[(?<noref>refReplace)\](?:\[\])?/)
+  .replace('refReplace', _blockLabel)
   .getRegex();
 
 const reflinkSearch = edit('reflink|nolink(?!\\()', 'g')
@@ -282,11 +282,11 @@ type InlineKeys = keyof typeof inlineNormal;
 
 const inlinePedantic: Record<InlineKeys, RegExp> = {
   ...inlineNormal,
-  link: edit(/^!?\[(label)\]\((.*?)\)/)
-    .replace('label', _inlineLabel)
+  link: edit(/^!?\[(?<label>labelReplace)\]\((?<href>.*?)\)/)
+    .replace('labelReplace', _inlineLabel)
     .getRegex(),
-  reflink: edit(/^!?\[(label)\]\s*\[([^\]]*)\]/)
-    .replace('label', _inlineLabel)
+  reflink: edit(/^!?\[(?<label>labelReplace)\]\s*\[(?<ref>.*?)\]/)
+    .replace('labelReplace', _inlineLabel)
     .getRegex()
 };
 
