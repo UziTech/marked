@@ -226,11 +226,11 @@ const tag = edit(
   .replace('attribute', /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/)
   .getRegex();
 
-const _inlineLabel = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+const _inlineLabel = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]+`|[^\[\]\\`])*?/;
 
-const link = edit(/^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/)
+const link = edit(/^!?\[(label)\]\((?:\s*(href)(?:\s+(title))?\s*|\s*)\)/)
   .replace('label', _inlineLabel)
-  .replace('href', /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/)
+  .replace('href', /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]+/)
   .replace('title', /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/)
   .getRegex();
 

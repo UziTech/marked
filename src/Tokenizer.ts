@@ -605,6 +605,7 @@ export class _Tokenizer {
   link(src: string): Tokens.Link | Tokens.Image | undefined {
     const cap = this.rules.inline.link.exec(src);
     if (cap) {
+      cap[2] = cap[2] ?? '';
       const trimmedUrl = cap[2].trim();
       if (!this.options.pedantic && /^</.test(trimmedUrl)) {
         // commonmark requires matching angle brackets
