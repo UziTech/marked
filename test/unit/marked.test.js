@@ -1,4 +1,4 @@
-import { Marked, Renderer, lexer, parseInline, getDefaults, walkTokens, defaults, setOptions } from '../../lib/marked.esm.js';
+import { Marked, Renderer, lexer, parseInline, getDefaults, walkTokens, defaults, setOptions, Lexer, Parser } from '../../lib/marked.esm.js';
 import { timeout } from './utils.js';
 import assert from 'node:assert';
 import { describe, it, beforeEach, mock } from 'node:test';
@@ -1005,6 +1005,68 @@ br
       assert.ok(promise instanceof Promise);
       const html = await promise;
       assert.strictEqual(html.trim(), '<p><em>text</em></p>');
+    });
+  });
+
+  describe('options', () => {
+    it('should maintain the same options object for one run', () => {
+      let testPath;
+
+      marked.use({
+        _testPath: [],
+        hooks: {
+          preprocess(src) {
+            this.options._testPath.push('hooks.preprocess');
+            return src;
+          },
+
+          postprocess(html) {
+            this.options._testPath.push('hooks.postprocess');
+            testPath = this.options._testPath;
+            return html;
+          },
+          processAllTokens(tokens) {
+            this.options._testPath.push('hooks.processAllTokens');
+            return tokens;
+          },
+          provideLexer() {
+            this.options._testPath.push('hooks.provideLexer');
+            return this.block ? Lexer.lex : Lexer.lexInline;
+          },
+          provideParser() {
+            this.options._testPath.push('hooks.provideParser');
+            return this.block ? Parser.parse : Parser.parseInline;
+          },
+        },
+        tokenizer: {
+          heading() {
+            this.lexer.options._testPath.push('lexer.heading');
+            this.options._testPath.push('tokenizer.heading');
+            return false;
+          },
+        },
+        renderer: {
+          heading() {
+            this.parser.options._testPath.push('parser.heading');
+            this.options._testPath.push('renderer.heading');
+            return false;
+          },
+        },
+      });
+
+      marked.parse('# test');
+
+      assert.deepEqual(testPath, [
+        'hooks.provideLexer',
+        'hooks.provideParser',
+        'hooks.preprocess',
+        'lexer.heading',
+        'tokenizer.heading',
+        'hooks.processAllTokens',
+        'parser.heading',
+        'renderer.heading',
+        'hooks.postprocess',
+      ]);
     });
   });
 });
