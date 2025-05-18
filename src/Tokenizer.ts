@@ -125,7 +125,7 @@ export class _Tokenizer {
 
       return {
         type: 'heading',
-        raw: cap[0],
+        raw: rtrim(cap[0], '\n'),
         depth: cap[1].length,
         text,
         tokens: this.lexer.inline(text),
@@ -538,7 +538,7 @@ export class _Tokenizer {
     if (cap) {
       return {
         type: 'heading',
-        raw: cap[0],
+        raw: rtrim(cap[0], '\n'),
         depth: cap[2].charAt(0) === '=' ? 1 : 2,
         text: cap[1],
         tokens: this.lexer.inline(cap[1]),
