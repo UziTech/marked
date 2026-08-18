@@ -5,6 +5,8 @@ import {
   findClosingBracket,
   expandTabs,
   trimTrailingBlankLines,
+  unescapeHtmlEntities,
+  escapeHtmlEntities,
 } from './helpers.ts';
 import type { Rules } from './rules.ts';
 import type { _Lexer } from './Lexer.ts';
@@ -510,8 +512,8 @@ export class _Tokenizer<ParserOutput = string, RendererOutput = string> {
     const cap = this.rules.block.def.exec(src);
     if (cap) {
       const tag = cap[1].toLowerCase().replace(this.rules.other.multipleSpaceGlobal, ' ');
-      const href = cap[2] ? cap[2].replace(this.rules.other.hrefBrackets, '$1').replace(this.rules.inline.anyPunctuation, '$1') : '';
-      const title = cap[3] ? cap[3].substring(1, cap[3].length - 1).replace(this.rules.inline.anyPunctuation, '$1') : cap[3];
+      const href = cap[2] ? unescapeHtmlEntities(cap[2].replace(this.rules.other.hrefBrackets, '$1').replace(this.rules.inline.anyPunctuation, '$1')) : '';
+      const title = cap[3] ? unescapeHtmlEntities(cap[3].substring(1, cap[3].length - 1).replace(this.rules.inline.anyPunctuation, '$1')) : cap[3];
       return {
         type: 'def',
         tag,
@@ -717,8 +719,8 @@ export class _Tokenizer<ParserOutput = string, RendererOutput = string> {
         }
       }
       return outputLink(cap, {
-        href: href ? href.replace(this.rules.inline.anyPunctuation, '$1') : href,
-        title: title ? title.replace(this.rules.inline.anyPunctuation, '$1') : title,
+        href: href ? unescapeHtmlEntities(href.replace(this.rules.inline.anyPunctuation, '$1')) : href,
+        title: title ? unescapeHtmlEntities(title.replace(this.rules.inline.anyPunctuation, '$1')) : title,
       }, cap[0], this.lexer, this.rules);
     }
   }
@@ -917,13 +919,13 @@ export class _Tokenizer<ParserOutput = string, RendererOutput = string> {
       return {
         type: 'link',
         raw: cap[0],
-        text,
+        text: escapeHtmlEntities(text, true),
         href,
         tokens: [
           {
             type: 'text',
             raw: text,
-            text,
+            text: escapeHtmlEntities(text, true),
           },
         ],
       };
@@ -954,13 +956,13 @@ export class _Tokenizer<ParserOutput = string, RendererOutput = string> {
       return {
         type: 'link',
         raw: cap[0],
-        text,
+        text: escapeHtmlEntities(text, true),
         href,
         tokens: [
           {
             type: 'text',
             raw: text,
-            text,
+            text: escapeHtmlEntities(text, true),
           },
         ],
       };

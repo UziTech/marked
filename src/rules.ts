@@ -81,6 +81,7 @@ export const other = {
   escapeReplace: /[&<>"']/g,
   escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,
   escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,
+  unescapeHtmlEntities: /&(?:amp|lt|gt|quot|apos|#39|#(\d{1,7})|#[xX]([a-fA-F0-9]{1,6}));/g,
   caret: /(^|[^\[])\^/g,
   percentDecode: /%25/g,
   findPipe: /\|/g,

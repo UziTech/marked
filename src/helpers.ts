@@ -12,6 +12,29 @@ const escapeReplacements: { [index: string]: string } = {
 };
 const getEscapeReplacement = (ch: string) => escapeReplacements[ch];
 
+const unescapeReplacements: { [index: string]: string } = {
+  '&amp;': '&',
+  '&lt;': '<',
+  '&gt;': '>',
+  '&quot;': '"',
+  '&#39;': "'",
+  '&apos;': "'",
+};
+
+export function unescapeHtmlEntities(html: string) {
+  return html.replace(other.unescapeHtmlEntities, (match, dec, hex) => {
+    if (dec) {
+      const code = parseInt(dec, 10);
+      return code === 0 || code > 0x10ffff ? '\uFFFD' : String.fromCodePoint(code);
+    }
+    if (hex) {
+      const code = parseInt(hex, 16);
+      return code === 0 || code > 0x10ffff ? '\uFFFD' : String.fromCodePoint(code);
+    }
+    return unescapeReplacements[match] || match;
+  });
+}
+
 export function escapeHtmlEntities(html: string, encode?: boolean) {
   if (encode) {
     if (other.escapeTest.test(html)) {
@@ -32,7 +55,7 @@ export function cleanUrl(href: string) {
   } catch {
     return null;
   }
-  return href;
+  return escapeHtmlEntities(href, true);
 }
 
 export function splitCells(tableRow: string, count?: number) {
